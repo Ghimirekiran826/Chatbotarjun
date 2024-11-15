@@ -12,13 +12,16 @@ from gtts import gTTS
 import io
 import sys
 
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, LSTM, Dropout, Dense, BatchNormalization
 app = Flask(__name__)
 
 # Ensure the default encoding is set to UTF-8
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # Load and preprocess the dataset
-dataset_path = os.path.join('datasets', 'college_queries.csv')
+dataset_path = os.path.join('datasets', 'test2.csv')
 try:
     df = pd.read_csv(dataset_path)
     print("CSV file read successfully")
@@ -50,10 +53,22 @@ label_encoder = LabelEncoder()
 encoded_tags = label_encoder.fit_transform(df['tag'].values)
 
 # Define the LSTM model
+# i will revert again from here
+# model = Sequential([
+#     Embedding(1000, 64, input_length=max_length),
+#     LSTM(64),
+#     Dense(64, activation='relu'),
+#     Dense(len(np.unique(encoded_tags)), activation='softmax')
+# ])
+# changedcode
 model = Sequential([
-    Embedding(1000, 64, input_length=max_length),
+    Embedding(1000, 128, input_length=max_length),
+    LSTM(128, return_sequences=True),
+    Dropout(0.2),
     LSTM(64),
-    Dense(64, activation='relu'),
+    Dropout(0.2),
+    Dense(64, activation='tanh'),
+    BatchNormalization(),
     Dense(len(np.unique(encoded_tags)), activation='softmax')
 ])
 
